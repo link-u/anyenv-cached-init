@@ -35,8 +35,10 @@ done
 HASH="$(echo ${HASH} | md5sum | awk '{ print $1 }')"
 
 ## If not exist, create `anyenv init` file
-ANYENV_INIT_RC="${ANYENV_CACHED_INIT_ROOT}/cached/anyenv_init_${HASH}"
+ANYENV_INIT_CACHE_DIR="${ANYENV_CACHED_INIT_ROOT}/cached"
+ANYENV_INIT_RC="${ANYENV_INIT_CACHE_DIR}/anyenv_init_${HASH}"
 if [ ! -f "${ANYENV_INIT_RC}" ]; then
+    rm -f "${ANYENV_INIT_CACHE_DIR}/anyenv_init_"*
     anyenv init --no-rehash - > "${ANYENV_INIT_RC}"
 fi
 
