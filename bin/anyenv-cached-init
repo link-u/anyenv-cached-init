@@ -17,16 +17,20 @@ HASH="$(git rev-parse HEAD)"
 
 ## dir2: anyenv
 for dir in "${ANYENV_ROOT}/"{,plugins/*}; do
-    cd "${dir}"
-    HASH="${HASH}$(git rev-parse HEAD)"
+    if [ -d "${dir}" ]; then
+        cd "${dir}"
+        HASH="${HASH}$(git rev-parse HEAD)"
+    fi
 done
 
 ## dir3: **env (phpenv, nodenv, etc...)
 for env_dir in "${ANYENV_ROOT}/envs/"*; do
-    if [ -d "$env_dir" ]; then
+    if [ -d "${env_dir}" ]; then
         for dir in "${env_dir}/"{,plugins/*}; do
-            cd "${dir}"
-            HASH="${HASH}$(git rev-parse HEAD)"
+            if [ -d "${dir}" ]; then
+                cd "${dir}"
+                HASH="${HASH}$(git rev-parse HEAD)"
+            fi
         done
     fi
 done
