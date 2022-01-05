@@ -1,0 +1,43 @@
+#!/usr/bin/env bash
+
+set -eo pipefail
+[ -n "$ANYENV_DEBUG" ] && set -x
+set -u
+
+if [ -z ${ANYENV_DEFINITION_ROOT+x} ]; then
+    # $XDG_CONFIG_HOME/anyenv/anyenv-install or ~/.config/anyenv/anyenv-install
+    ANYENV_DEFINITION_ROOT="${XDG_CONFIG_HOME:-${HOME}/.config}/anyenv/anyenv-install"
+fi
+
+ANYENV_CACHED_INIT_ROOT="$(cd "$(dirname ${0})/../" && pwd)"
+
+## dir1: anyenv manifest directory
+cd ${ANYENV_DEFINITION_ROOT}
+HASH="$(git rev-parse HEAD)"
+
+## dir2: anyenv
+for dir in "${ANYENV_ROOT}/"{,plugins/*}; do
+    cd "${dir}"
+    HASH="${HASH}$(git rev-parse HEAD)"
+done
+
+## dir3: **env (phpenv, nodenv, etc...)
+for env_dir in "${ANYENV_ROOT}/envs/"*; do
+    if [ -d "$env_dir" ]; then
+        for dir in "${env_dir}/"{,plugins/*}; do
+            cd "${dir}"
+            HASH="${HASH}$(git rev-parse HEAD)"
+        done
+    fi
+done
+
+## From all git head commit hash to md5sum
+HASH="$(echo ${HASH} | md5sum | awk '{ print $1 }')"
+
+## If not exist, create `anyenv init` file
+ANYENV_INIT_RC="${ANYENV_CACHED_INIT_ROOT}/cached/anyenv_init_${HASH}"
+if [ ! -f "${ANYENV_INIT_RC}" ]; then
+    anyenv init --no-rehash - > "${ANYENV_INIT_RC}"
+fi
+
+echo "${ANYENV_INIT_RC}"
