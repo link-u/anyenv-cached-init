@@ -13,7 +13,7 @@ ANYENV_CACHED_INIT_ROOT="$(cd "$(dirname ${0})/../" && pwd)"
 
 ## dir1: anyenv manifest directory
 cd ${ANYENV_DEFINITION_ROOT}
-HASH="$(git rev-parse HEAD)"
+HASH="$(git rev-parse HEAD 2>/dev/null || anyenv --version)"
 
 ## dir2: anyenv
 for dir in "${ANYENV_ROOT}/"{,plugins/*}; do
